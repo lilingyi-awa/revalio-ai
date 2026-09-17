@@ -74,7 +74,7 @@ html, body {margin: 0px; padding: 0px;}
 }
 #chat-buttons *{margin-right: 5px;}
 #chat-buttons :first{margin-right: 0px;}
-#chat-buttons>button{
+#chat-buttons button{
     height: 40px;
     color: white;
     background-color: #1e9fff;
@@ -83,7 +83,7 @@ html, body {margin: 0px; padding: 0px;}
     padding-left: 16px;
     padding-right: 16px;
 }
-#chat-buttons>button:hover{background-color: #31bdec;}
+#chat-buttons button:hover{background-color: #31bdec;}
 #chat-stream{padding: 5px;}
 .chat-subject-message{
     padding: 5px;
