@@ -125,7 +125,11 @@ async function import_history(){
     let container = document.getElementById("chat-stream-content");
     window.chatLocker = true;
     try{
-        const [handle] = await window.showOpenFilePicker();
+        try{
+            const [handle] = await window.showOpenFilePicker();
+        }catch(e){
+            return;
+        }
         const file = await handle.getFile();
         const pocket = JSON.parse(await file.text());
         if(pocket.type != "revelio.history"){alert("无效的历史文件！"); return;}
