@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Revelio</title>
+        <link rel="stylesheet" href="/static/main.css?version=4"/>
+        <script src="/static/sse.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="/static/main.js?version=2"></script>
+    </head>
+    <body>
+        <div id="security-popup-container">
+            <div>
+                <h1 style="text-align: center; margin-top: 0px;">您的会话是安全的</h1>
+                <p style="text-align: center;">我们采取了多重措施保护您的数据安全。</p>
+                <ul>
+                    <li><img src="/static/icon/send.svg" alt="" draggable="false"/>没有身份认证</li>
+                    <dd>我们承诺不获取您的任何身份信息。没有账户登录，没有用户指纹，什么都没有。</dd>
+                    <li><img src="/static/icon/shield.svg" alt="" draggable="false"/>盲化询问</li>
+                    <dd>所有消息通过ConSync的服务器中转，DeepSeek方面仅能得知该消息来自Revelio用户群体中的某一匿名成员，而无法得知关于具体用户的任何信息。</dd>
+                    <li><img src="/static/icon/space.svg" alt="" draggable="false"/>不留存消息</li>
+                    <dd>Revelio不在任何地方存储您的聊天记录，哪怕是您的本地设备也绝不存储。除非您手动保存为文件，否则只要关闭页面，一切灰飞烟灭。</dd>
+                </ul>
+                <button onclick="display_popup('');">了解</button>
+            </div>
+        </div>
+        <div id="chat-stream-container">
+            <div id="chat-stream">
+                <div class="chat-subject-event" onclick="display_popup('security');">
+                    <img src="/static/icon/shield.svg" alt="" style="vertical-align: middle; width: 1.3rem; aspect-ratio: 1; padding-left: 1px;" alt="" draggable="false"/>
+                    您的会话是安全的。
+                </div>
+                <div id="chat-stream-content"></div>
+            </div>
+        </div>
+        <textarea id="chat-input"></textarea>
+        <div id="chat-buttons">
+            <button id="chat-send-button" onclick="deliver_message();">发送</button>
+            <button id="chat-export-button" onclick="export_history();">保存历史</button>
+            <button id="chat-import-button" onclick="import_history();">载入历史</button>
+        </div>
+    </body>
+</html>
