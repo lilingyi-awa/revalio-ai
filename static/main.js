@@ -4,6 +4,7 @@
 function display_popup(flag){
     let popups = {
         security: document.getElementById("security-popup-container"),
+        pow: document.getElementById("pow-popup-container"),
     }
     for(i in popups){
         let dom = popups[i];
@@ -37,18 +38,36 @@ async function beginChatSession(question){
         ser.className = "message-retain-buffer";
         return med;
     })());
-    let agent_vedal = container.appendChild(document.createElement("div"));
-    agent_vedal.className = "chat-subject-message";
-    agent_vedal.innerHTML = '<p><img src="/static/icon/model.svg" alt="" style="vertical-align: middle; width: 1.3rem; aspect-ratio: 1; padding-left: 1px;" alt="" draggable="false"/><strong>Revelio</strong></p>';
-    let retain_buffer = agent_vedal.appendChild(document.createElement("div"));
-    retain_buffer.className = "message-retain-buffer";
+    let agent_vedal = document.createElement("div");
     window.agentResponse = "";
     window.agentSuccess = false;
     window.agentError = "connection.close";
     try{
+        // PoW
+        pow_message = container.appendChild(document.createElement("div"));
+        pow_message.className = "chat-subject-event";
+        pow_message.innerHTML = '<img src="/static/icon/lock.svg" alt="" style="vertical-align: middle; width: 1.3rem; aspect-ratio: 1; padding-left: 1px;" alt="" draggable="false"/>';
+        pow_message.appendChild(document.createTextNode("正在执行PoW CAPTCHA..."));
+        pow_message.onclick = ()=>{display_popup('pow')};
+        try{
+            pow_challgence = (await (await fetch("/api/get-pow-problem")).json()).problem;
+            pow_response = await proofOfWork(pow_challgence);
+        }finally{
+            pow_message.remove();
+        }
+        // Chat
+        agent_vedal.className = "chat-subject-message";
+        agent_vedal.innerHTML = '<p><img src="/static/icon/model.svg" alt="" style="vertical-align: middle; width: 1.3rem; aspect-ratio: 1; padding-left: 1px;" alt="" draggable="false"/><strong>Revelio</strong></p>';
+        let retain_buffer = agent_vedal.appendChild(document.createElement("div"));
+        retain_buffer.className = "message-retain-buffer";
+        container.appendChild(agent_vedal);
         await postSSE("/api/prediction", {
             history: window.chatHistory,
             question: question,
+            pow: {
+                challgence: pow_challgence,
+                response: pow_response,
+            }
         }, {
             onEvent(event){
                 let data = JSON.parse(event.data);
@@ -69,21 +88,22 @@ async function beginChatSession(question){
             }
         });
     }finally{
+        button1.removeAttribute("disabled");
+        button2.removeAttribute("disabled");
+        button3.removeAttribute("disabled");
+        window.chatLocker = false;
         if(!window.agentSuccess){
             switch(window.agentError){
                 case "connection.close": alert("错误：连接意外关闭！"); break;
                 case "server.error": alert("错误：系统后端错误！"); break;
                 case "sign.invalid": alert("错误：历史消息签名错误！"); break;
+                case "pow.invalid": alert("错误：Proof-of-Work失败！"); break;
                 case "filter.rejected": alert("错误：检测到违禁词！"); break;
                 default: alert("错误：未识别的错误！"); break;
             }
             user_vedal.remove();
             agent_vedal.remove();
         }
-        button1.removeAttribute("disabled");
-        button2.removeAttribute("disabled");
-        button3.removeAttribute("disabled");
-        window.chatLocker = false;
     }
 }
 
@@ -162,5 +182,24 @@ async function import_history(){
         window.chatLocker = false;
     }finally{
         window.chatLocker = false;
+    }
+}
+
+async function proofOfWork(challgence){
+    while(true){
+        const salt = crypto.getRandomValues(new Uint8Array(32));
+        const key = await hashwasm.scrypt({
+            password: challgence,
+            salt,
+            costFactor: 256,
+            blockSize: 8,
+            parallelism: 4,
+            hashLength: 2,
+            outputType: 'hex'
+        });
+        if(key.startsWith("00") && key[2] < '4'){
+            return salt.toHex();
+        }
+        await scheduler.yield();
     }
 }

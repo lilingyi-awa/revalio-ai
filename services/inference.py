@@ -7,6 +7,7 @@ import base64
 from fastapi.responses import EventSourceResponse
 import json
 import traceback
+from .powcaptcha import verify_challgence
 
 client = openai.AsyncOpenAI(
     api_key=DEEPSEEK_KEY,
@@ -27,15 +28,23 @@ def compare_signature(sig1: str, sig2: str):
 
 router = fastapi.APIRouter()
 
+class ProofOfWork(pd.BaseModel):
+    challgence: str
+    response: str
+
 class RequestARD(pd.BaseModel):
     history: list[History]
     question: str
+    pow: ProofOfWork
 
 def package_message(msg):
     return b"data: " + json.dumps(msg).encode("utf-8") + b"\n\n"
 
 async def message_predictor(req: RequestARD):
     yield package_message({"type": "hello"})
+    if not await verify_challgence(req.pow.challgence, req.pow.response):
+        yield package_message({"type": "error", "error": "pow.invalid"})
+        return
     # Verify signature
     digest = ""
     for history in req.history:

@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import re
 from services.inference import router as inference_router
+from services.powcaptcha import create_challgence
 
 app = fastapi.FastAPI()
 app.mount("/static", StaticFiles(directory="./static"))
@@ -12,6 +13,10 @@ app.include_router(inference_router)
 async def indexpage():
     with open("./static/_index.html", "r", encoding="utf-8") as f:
         return HTMLResponse(re.sub(r"\n *", "", f.read()))
+
+@app.get("/api/get-pow-problem")
+async def get_pow_problem():
+    return {"problem": create_challgence()}
 
 if __name__ == "__main__":
     import uvicorn

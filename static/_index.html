@@ -3,10 +3,11 @@
     <head>
         <meta charset="utf-8"/>
         <title>Revelio</title>
-        <link rel="stylesheet" href="/static/main.css?version=4"/>
+        <link rel="stylesheet" href="/static/main.css?version=5"/>
+        <script src="https://cdn.jsdelivr.net/npm/hash-wasm@4"></script>
         <script src="/static/sse.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-        <script src="/static/main.js?version=2"></script>
+        <script src="/static/main.js?version=5"></script>
     </head>
     <body>
         <div id="security-popup-container">
@@ -21,6 +22,13 @@
                     <li><img src="/static/icon/space.svg" alt="" draggable="false"/>不留存消息</li>
                     <dd>Revelio不在任何地方存储您的聊天记录，哪怕是您的本地设备也绝不存储。除非您手动保存为文件，否则只要关闭页面，一切灰飞烟灭。</dd>
                 </ul>
+                <button onclick="display_popup('');">了解</button>
+            </div>
+        </div>
+        <div id="pow-popup-container">
+            <div>
+                <h1 style="text-align: center; margin-top: 0px;">PoW Captcha</h1>
+                <p>为了保持匿名和不可追踪，我们仅通过Proof-of-Work来证明您是真实用户。这将在您的设备上进行若干次Scrypt计算，在标准测试设备上，这平均需要3~5秒钟左右。</p>
                 <button onclick="display_popup('');">了解</button>
             </div>
         </div>
